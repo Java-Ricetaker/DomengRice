@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Management System</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            text-align: left;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Library Management System</h1>
+
+    <!-- Form to Add Books -->
+    <form id="addBookForm">
+        <label for="bookTitle">Book Title:</label>
+        <input type="text" id="bookTitle" name="bookTitle" required>
+        <label for="bookCopies">Number of Copies:</label>
+        <input type="number" id="bookCopies" name="bookCopies" required>
+        <button type="submit">Add Book</button>
+        <p class="error" id="errorMessage"></p>
+    </form>
+
+    <!-- Table to Display Books -->
+    <table id="bookCatalog">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Available Copies</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Rows will be dynamically added here -->
+        </tbody>
+    </table>
+
+    <script>
+        const addBookForm = document.getElementById('addBookForm');
+        const bookCatalog = document.getElementById('bookCatalog').querySelector('tbody');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // Function to fetch and render the catalog
+        async function fetchCatalog() {
+            const response = await fetch('addBook.php?action=getCatalog');
+            const books = await response.json();
+            bookCatalog.innerHTML = '';
+            books.forEach(book => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${book.title}</td><td>${book.copies}</td>`;
+                bookCatalog.appendChild(row);
+            });
+        }
+
+        // Submit event for adding books
+        addBookForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(addBookForm);
+
+            const response = await fetch('addBook.php?action=addBook', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                errorMessage.textContent = '';
+                fetchCatalog();
+                addBookForm.reset();
+            } else {
+                errorMessage.textContent = result.message;
+            }
+        });
+
+        // Initial render of the catalog
+        fetchCatalog();
+    </script>
+</body>
+</html>
