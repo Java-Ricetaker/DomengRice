@@ -7,7 +7,28 @@
 </head>
 <body>
     <h2>Project Management System</h2>
-    
+    <form id="projectForm">
+        <label>Project Name:</label>
+        <input type="text" id="projectName" required>
+ 
+        <label>Start Date:</label>
+        <input type="date" id="startDate" required>
+ 
+        <label>End Date:</label>
+        <input type="date" id="endDate" required>
+ 
+        <label>Scope:</label>
+        <select id="scope" required>
+            <option value="Small">Small</option>
+            <option value="Medium">Medium</option>
+            <option value="Large">Large</option>
+        </select>
+ 
+        <button type="submit">Add Project</button>
+    </form>
+
+
+
     <table>
         <thead>
             <tr>
@@ -25,6 +46,42 @@
     </table>
 
     <script>
+        document.getElementById("projectForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+    
+        let projectName = document.getElementById("projectName").value;
+        let startDate = document.getElementById("startDate").value;
+        let endDate = document.getElementById("endDate").value;
+        let scope = document.getElementById("scope").value;
+    
+        if (new Date(endDate) <= new Date(startDate)) {
+            alert("End date must be greater than start date!");
+            return;
+        }
+    
+        let projectData = {
+            project_name: projectName,
+            start_date: startDate,
+            end_date: endDate,
+            scope: scope,
+            status: "Ongoing"
+        };
+    
+        fetch("add_project.php", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(projectData)
+        }).then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Project added successfully!");
+                location.reload();
+            } else {
+                alert("Error adding project.");
+            }
+        });
+    });
+
         // Function to fetch and display existing projects from the database
         function fetchProjects() {
             fetch('fetch_project.php')
